@@ -1,0 +1,41 @@
+# All user-editable settings live in this file. Commands accept actions only.
+paths:
+  data: data
+  artifacts: artifacts
+  resnet_weights: data/weights/resnet50-11ad3fa6.pth
+training:
+  dataset: her2st
+  fold: 0
+  seed: 12000
+  device: cuda:0
+  max_epochs: 500
+  patience: 50
+  learning_rate: 7.500e-06
+  dropout: 0.200
+prior:
+  similarity_threshold: 0.290
+  top_k: 65
+  weights:
+    gene2vec: 0.242
+    msigdb: 0.181
+    string: 0.098
+    go: 0.096
+prediction:
+  regulatory_weight: 0.749
+loss:
+  mse: 26.427
+  reconstruction: 0.165
+  pcc: 1.967
+  rank: 0.525
+  zinb: 0.071
+datasets:
+  folds:
+    her2st: 0
+    cscc: 0
+    dlpfc: 0
+prototype:
+  clusters_per_slide: 32
+  retrieval_k: 6
+web:
+  host: 0.0.0.0
+  port: 8080

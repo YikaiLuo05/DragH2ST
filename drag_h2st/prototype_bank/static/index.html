@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DragH2ST · Prototype Bank</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/i18n.js" defer></script>
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <aside class="rail" aria-label="Main navigation" data-i18n-aria-label="navigation">
+      <a class="brand" href="/" aria-label="DragH2ST home" data-i18n-aria-label="home">D<span>H</span></a>
+      <button
+        class="nav active"
+        id="nav-workspace"
+        title="Slide workspace" data-i18n-title="workspace"
+        aria-label="Slide workspace" data-i18n-aria-label="workspace"
+      >
+        ◈
+      </button>
+      <button
+        class="nav"
+        id="nav-library"
+        title="Prototype Bank" data-i18n-title="bank"
+        aria-label="Prototype Bank" data-i18n-aria-label="bank"
+      >
+        ▦
+      </button>
+      <div class="rail-bottom">
+        <span class="status-dot"></span><span data-i18n="local">LOCAL</span>
+      </div>
+    </aside>
+    <div class="shell">
+      <header class="header">
+        <div>
+          <div class="eyebrow" data-i18n="eyebrow">HISTOLOGY → SPATIAL TRANSCRIPTOMICS</div>
+          <h1>DragH2ST <span>Prototype Bank</span></h1>
+        </div>
+        <div class="header-actions">
+          <label class="language-picker">
+            <span class="language-label" data-i18n="language">Language</span>
+            <select id="language-select" aria-label="Language" data-i18n-aria-label="language">
+              <option value="en" lang="en">English</option>
+              <option value="fr" lang="fr">Français</option>
+              <option value="es" lang="es">Español</option>
+              <option value="zh" lang="zh-CN">中文</option>
+            </select>
+          </label>
+          <span class="connection" id="connection" data-i18n="connecting">Connecting…</span
+          ><button id="upload-open" class="button" data-i18n="uploadOpen">＋ Upload</button>
+        </div>
+      </header>
+      <main id="workspace-page">
+        <div class="page-heading">
+          <div>
+            <span class="section-tag" data-i18n="exploreTag">01 / EXPLORE</span>
+            <h2 data-i18n="exploreTitle">Explore spatial expression through tissue morphology</h2>
+          </div>
+          <p data-i18n="exploreSubtitle">Browse slides · Select regions · Find similar tissue</p>
+        </div>
+        <div class="workspace-grid">
+          <section class="viewer-panel">
+            <div class="slide-toolbar">
+              <div class="slide-selector">
+                <label for="slide-select"><span data-i18n="currentSlide">Current slide</span></label
+                ><select id="slide-select">
+                  <option data-i18n="loadingSlides">Loading slides…</option>
+                </select>
+              </div>
+              <span id="tissue-badge" class="badge"></span
+              ><button id="predict" class="button primary" disabled data-i18n="predict">Predict expression</button>
+            </div>
+            <div class="image-toolbar">
+              <div class="tool-group">
+                <button
+                  id="tool-pan"
+                  class="tool active"
+                  title="Drag to pan" data-i18n-title="panHint"
+                  aria-pressed="true"
+                ><span data-i18n="pan">↔ Pan</span></button
+                ><button
+                  id="tool-region"
+                  class="tool"
+                  title="Drag to select a region" data-i18n-title="regionHint"
+                  aria-pressed="false"
+                ><span data-i18n="region">▣ Region</span></button
+                ><button
+                  id="tool-spot"
+                  class="tool"
+                  title="Click a spot" data-i18n-title="spotHint"
+                  aria-pressed="false"
+                 data-i18n="spot">⊙ Spot</button>
+              </div>
+              <div class="tool-group">
+                <button id="zoom-out" class="tool" aria-label="Zoom out" data-i18n-aria-label="zoomOut">−</button
+                ><button id="zoom-in" class="tool" aria-label="Zoom in" data-i18n-aria-label="zoomIn">＋</button
+                ><button id="fit" class="tool" data-i18n="fit">Fit view</button>
+              </div>
+            </div>
+            <div class="canvas-wrap" id="canvas-wrap">
+              <canvas
+                id="slide-canvas"
+                tabindex="0"
+                aria-label="Tissue slide: zoom, pan and select regions" data-i18n-aria-label="canvasLabel"
+              ></canvas>
+              <div id="viewer-empty" class="viewer-message" data-i18n="openingSlide">Opening tissue slide…</div>
+              <div class="canvas-label">
+                <span class="status-dot"></span
+                ><span id="canvas-status" data-i18n="tissueImage">Tissue image</span>
+              </div>
+              <div id="coordinate-note" class="coordinate-note" hidden></div>
+              <div class="zoom-label" id="zoom-label">100%</div>
+            </div>
+            <div class="heatmap-toolbar">
+              <label class="toggle"
+                ><input type="checkbox" id="heatmap-toggle" disabled /><span
+                  ><span data-i18n="heatmap">Expression heatmap</span></span
+                ></label
+              ><input
+                id="gene-input"
+                list="gene-options"
+                placeholder="Search genes, e.g. ERBB2" data-i18n-placeholder="geneSearch"
+                aria-label="Heatmap gene" data-i18n-aria-label="heatmapGene"
+                disabled
+              /><datalist id="gene-options"></datalist
+              ><label class="opacity-label" for="opacity"><span data-i18n="opacity">Opacity</span></label
+              ><input
+                type="range"
+                id="opacity"
+                min="0"
+                max="100"
+                value="70"
+                aria-label="Heatmap opacity" data-i18n-aria-label="heatmapOpacity"
+              /><span class="color-scale"></span
+              ><span id="heatmap-range" class="muted" data-i18n="lowHigh">Low → High</span>
+            </div>
+            <div class="viewer-footer">
+              <span id="slide-details">—</span
+              ><span data-i18n="viewerHint">Scroll to zoom · Esc clears selection</span>
+            </div>
+            <div id="job-status" class="job-status" hidden>
+              <span class="spinner"></span><span id="job-message"></span>
+            </div>
+          </section>
+          <aside class="inspector">
+            <section class="selection-card">
+              <div class="card-heading">
+                <span class="section-tag"><span data-i18n="regionInsights">REGION INSIGHTS</span></span
+                ><span class="badge soft" id="selection-count" data-i18n="noSelection">No region selected</span>
+              </div>
+              <h3 id="selection-title" data-i18n="regionExpression">Region expression</h3>
+              <p id="selection-help" data-i18n="selectionInitial">After prediction, select a region or click a spot.</p>
+              <div class="selection-actions">
+                <button class="button small" id="whole-slide" disabled><span data-i18n="wholeSlide">Analyze whole slide</span></button
+                ><button class="button small" id="clear-selection" data-i18n="clear">Clear</button>
+              </div>
+            </section>
+            <section class="ranking-card">
+              <div class="card-heading">
+                <h3 data-i18n="ranking">Gene expression ranking</h3>
+                <span class="mini-label" data-i18n="regionMean">Region mean · Predicted</span>
+              </div>
+              <div class="ranking-columns">
+                <span data-i18n="gene">Gene</span><span data-i18n="expression">Expression</span>
+              </div>
+              <div id="ranking" class="ranking">
+                <div class="empty-state">
+                  <span>⌁</span>
+                  <p data-i18n="rankingEmpty">Select a region to view expression rankings</p>
+                </div>
+              </div>
+              <button id="download" class="text-button" disabled data-i18n="download">↓ Export whole-slide expression CSV</button>
+            </section>
+            <section class="retrieval-card">
+              <div class="card-heading">
+                <h3 data-i18n="similarPrototypes">Similar tissue prototypes</h3>
+                <span class="mini-label" data-i18n="morphologySimilarity">Morphology similarity</span>
+              </div>
+              <label class="search-tissue" for="search-tissue"
+                ><span data-i18n="searchBank">Search tissue bank</span><select id="search-tissue"></select
+              ></label>
+              <div id="retrieval" class="retrieval">
+                <div class="empty-state">
+                  <span>◈</span>
+                  <p data-i18n="retrievalEmpty">Select a region to find similar prototypes</p>
+                </div>
+              </div>
+              <button id="index-open" class="button full" disabled data-i18n="indexOpen">＋ Add predicted slide to bank</button>
+            </section>
+          </aside>
+        </div>
+      </main>
+      <main id="library-page" hidden>
+        <div class="page-heading">
+          <div>
+            <span class="section-tag" data-i18n="collectionsTag">02 / COLLECTIONS</span>
+            <h2 data-i18n="bank">Prototype Bank</h2>
+          </div>
+          <p data-i18n="bankSubtitle">Save representative tissue and traceable expression evidence</p>
+        </div>
+        <div id="library-stats" class="library-stats"></div>
+        <div class="library-toolbar">
+          <label for="library-tissue"
+            ><span data-i18n="tissue">Tissue</span><select id="library-tissue">
+              <option value="" data-i18n="allTissues">All tissues</option>
+            </select></label
+          ><span id="library-count" class="muted"></span
+          ><button id="library-refresh" class="button small" data-i18n="refresh">Refresh</button>
+        </div>
+        <div id="library-grid" class="library-grid"></div>
+        <button id="library-more" class="button load-more" data-i18n="loadMore">Load more prototypes</button>
+      </main>
+      <footer class="footer">
+        <span>DragH2ST / Dynamic Regulatory Graph Learning</span
+        ><span data-i18n="footer">Spatial expression prediction and tissue evidence exploration</span>
+      </footer>
+    </div>
+    <dialog id="upload-dialog">
+      <form id="upload-form" novalidate>
+        <div class="dialog-heading">
+          <h2 data-i18n="uploadTitle">Upload tissue slide</h2>
+          <button type="button" class="close-dialog" aria-label="Close" data-i18n-aria-label="close">
+            ×
+          </button>
+        </div>
+        <p class="muted" data-i18n="uploadDescription">Predict spatial gene expression on a new slide with its tissue model.</p>
+        <label
+          ><span data-i18n="tissueModel">Tissue model</span><select name="dataset" id="upload-model">
+            <option value="her2st" data-i18n="model.her2st">Breast · HER2ST</option>
+            <option value="cscc" data-i18n="model.cscc">Skin · cSCC</option>
+            <option value="dlpfc" data-i18n="model.dlpfc">Cerebral cortex · DLPFC</option>
+          </select></label
+        ><label class="file-field"
+          ><span data-i18n="slideImage">Slide image</span><span><span data-i18n="imageLimits">PNG / JPG / TIFF, up to 512 MB</span></span
+          ><input
+            type="file"
+            name="image"
+            accept=".png,.jpg,.jpeg,.tif,.tiff"
+            required /></label
+        ><label class="file-field"
+          ><span data-i18n="coordinatesCsv">Spot coordinates CSV</span><span><span data-i18n="coordinatesOptional">Optional; tissue is sampled automatically when omitted</span></span
+          ><input type="file" name="coordinates" accept=".csv"
+        /></label>
+        <p class="form-note" data-i18n="coordinatesHelp">Columns: pixel_x, pixel_y; optional grid columns x, y (0–127). Coordinates must be at least 56 pixels from the image edge. Supports 2–5000 spots.</p>
+        <div class="dialog-actions">
+          <button type="button" class="button close-dialog"><span data-i18n="cancel">Cancel</span></button
+          ><button type="submit" id="upload-submit" class="button primary" data-i18n="uploadSubmit">Upload and open</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="index-dialog">
+      <form id="index-form" novalidate>
+        <div class="dialog-heading">
+          <h2 data-i18n="indexTitle">Add to Prototype Bank</h2>
+          <button type="button" class="close-dialog" aria-label="Close" data-i18n-aria-label="close">
+            ×
+          </button>
+        </div>
+        <p class="muted" data-i18n="indexDescription">Select representative spots from this slide and save their images and predicted expression.</p>
+        <label
+          ><span data-i18n="bankName">Tissue bank name</span><input
+            id="index-tissue"
+            list="tissue-options"
+            required
+            maxlength="80"
+            placeholder="Choose an existing tissue or enter a new name" data-i18n-placeholder="bankNamePlaceholder" /></label
+        ><datalist id="tissue-options"></datalist>
+        <p class="form-note" data-i18n="indexHelp">Expression is labeled “Predicted”. Adding the same slide again updates its prototypes.</p>
+        <div class="dialog-actions">
+          <button type="button" class="button close-dialog"><span data-i18n="cancel">Cancel</span></button
+          ><button type="submit" class="button primary" data-i18n="addPrototypes">Add prototypes</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="prototype-dialog">
+      <div class="dialog-heading">
+        <h2 data-i18n="prototypeTitle">Tissue prototype</h2>
+        <button type="button" class="close-dialog" aria-label="Close" data-i18n-aria-label="close">×</button>
+      </div>
+      <div id="prototype-detail"></div>
+    </dialog>
+    <div id="toast" class="toast" role="status" hidden></div>
+  </body>
+</html>
